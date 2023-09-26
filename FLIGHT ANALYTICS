@@ -1,0 +1,140 @@
+#TITLE: FLIGHT ANALYTICS
+#CREATED BY: JENY HOANG 
+#CONCEPTS USED: WINDOW FUNCTIONS, AGGREGATE FUNCTIONS, CASE FUNCTIONS
+
+#Review the Database
+SELECT * FROM Flights;
+
+
+#Calculate Total Profit for a Specific Route
+SELECT SUM(Profitability) AS TotalProfit
+FROM Flights
+WHERE Route = 'BNE-SYD';
+
+
+#Observe Flights with Frequent Flyer Status
+SELECT * FROM Flights
+WHERE `Frequent Flyer Status` = 'Gold';
+
+
+#Find the Customers with the Highest Total Ticket Prices 
+SELECT `Customer ID`, Name, SUM(`Ticket Price`) AS TotalSpent
+FROM Flights
+GROUP BY `Customer ID`, Name
+ORDER BY TotalSpent DESC
+LIMIT 10;
+
+
+#Find Flights with Ticket Price Higher than Competitor Price
+SELECT * FROM Flights
+WHERE `Ticket Price` > `Competitor Price`;
+
+
+#Comparing Ticket Prices with Competitor Prices on Different Flight Routes
+SELECT
+    Route,
+    `Ticket Price`,
+    `Competitor Price`,
+    CASE
+        WHEN `Ticket Price` > `Competitor Price` THEN 'Higher'
+        WHEN `Ticket Price` < `Competitor Price` THEN 'Lower'
+        ELSE 'Equal'
+    END AS PriceComparison
+FROM Flights;
+
+
+#Find the Most Profitable Route
+SELECT Route, MAX(Profitability) AS MaxProfit
+FROM Flights
+GROUP BY Route ORDER BY MaxProfit DESC
+LIMIT 1;
+
+
+#Calculate the Total Revenue Generated for Each Departure City
+SELECT `Departure City`, SUM(`Ticket Price`) AS TotalRevenue
+FROM Flights
+GROUP BY `Departure City`;
+
+
+#Find Flights with High Demand:
+SELECT * FROM Flights
+WHERE Demand > 1.7 Order by Demand desc;
+
+
+#Find Customers who Have Flown on More than One Route
+SELECT `Customer ID`, Name
+FROM Flights
+WHERE `Customer ID` IN (
+    SELECT `Customer ID`
+    FROM Flights
+    GROUP BY `Customer ID`
+    HAVING COUNT(DISTINCT Route) > 1
+);
+
+
+#Calculate the Total of Ticket Prices for Each Flight Route
+SELECT
+    Route,
+    `Departure Date`,
+    `Ticket Price`,
+    SUM(`Ticket Price`) OVER (PARTITION BY Route ORDER BY `Departure Date`) AS RunningTotal
+FROM Flights
+ORDER BY Route, `Departure Date`;
+
+
+#Calculate the Difference in Ticket Price Between a Flight and the Previous Flight on the Same Route
+SELECT
+    Route,
+    `Departure Date`,
+    `Ticket Price`,
+    `Ticket Price` - LAG(`Ticket Price`) OVER (PARTITION BY Route ORDER BY `Departure Date`) AS PriceDifference
+FROM Flights
+ORDER BY Route, `Departure Date`;
+
+
+#Calculate the Moving Average of Delay Minutes Over a 3 Day Window
+SELECT
+    `Departure Date`,
+    `Delay Minutes`,
+    AVG(`Delay Minutes`) OVER (ORDER BY `Departure Date` ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS MovingAvgDelay
+FROM Flights
+ORDER BY `Departure Date`;
+
+
+#Rank Customers by Total Ticket Spending with Dense Ranking
+SELECT
+    `Customer ID`,
+    Name,
+    SUM(`Ticket Price`) AS TotalSpent,
+    DENSE_RANK() OVER (ORDER BY SUM(`Ticket Price`) DESC) AS DenseCustomerRank
+FROM Flights
+GROUP BY `Customer ID`, Name
+ORDER BY DenseCustomerRank;
+
+
+#Analyze Customer Spending by Departure Date with Dense Ranking
+WITH CustomerSpending AS (
+    SELECT
+        `Departure Date`,
+        `Customer ID`,
+        SUM(`Ticket Price`) AS TotalSpent
+    FROM Flights
+    GROUP BY `Departure Date`, `Customer ID`)
+SELECT
+    `Departure Date`,
+    `Customer ID`,
+    TotalSpent,
+    DENSE_RANK() OVER (PARTITION BY `Departure Date` ORDER BY TotalSpent DESC) AS DenseCustomerRank
+FROM CustomerSpending
+ORDER BY `Departure Date`, DenseCustomerRank;
+
+
+#Classify Flight Punctuality by Departure and Arrival Cities
+SELECT
+    `Departure City`,
+    `Arrival City`,
+    CASE
+        WHEN `Delay Minutes` <= 20 THEN 'Reasonable Lated'
+        ELSE 'Delayed'
+    END AS FlightStatus
+FROM Flights;
