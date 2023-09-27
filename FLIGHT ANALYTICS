@@ -96,7 +96,7 @@ ORDER BY Route, `Departure Date`;
 SELECT
     `Departure Date`,
     `Delay Minutes`,
-    AVG(`Delay Minutes`) OVER (ORDER BY `Departure Date` ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS MovingAvgDelay
+    AVG(`Delay Minutes`) OVER (ORDER BY `Departure Date` ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS AvgDelay
 FROM Flights
 ORDER BY `Departure Date`;
 
