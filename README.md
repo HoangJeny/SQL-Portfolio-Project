@@ -4,6 +4,7 @@ Thank you for visiting my SQL portfolio project! This repository hosts an assort
 
 ## Hightlighted Project
 1. FLIGHT ANALYTICS - [SQL](https://github.com/HoangJeny/SQL-Portfolio-Project/blob/main/FLIGHT%20ANALYTICS) : In this project, I utilized the 'Flight Prediction Dataset' from Kaggle to gain valuable insights into international airline operations. I identified profitable routes, analyzed frequent flyer behavior and located high-spending clients. Making well-informed choices involves comparing ticket prices with those of competitors, analysing income by departure city, and identifying in-demand routes. I also monitored changes in ticket prices and punctuality classifications. These results enable airlines to better plan itineraries, optimise pricing, and increase operational effectiveness and passenger satisfaction.
+
 FLIGHT ANALYTICS - [Tableau](https://public.tableau.com/app/profile/hoang.jeny/viz/FlightsDashboard_16958376526070/Dashboard1?publish=yes)
 
 Database Overview:
