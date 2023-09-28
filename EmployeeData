@@ -1,0 +1,81 @@
+#TITLE: EMPLOYEE DATA
+#CREATED BY: JENY HOANG 
+#CONCEPTS USED: WINDOW FUNCTIONS, AGGREGATE FUNCTIONS, CASE FUNCTIONS
+
+#Review the Database
+Select * from EmployeeData;
+
+
+#Fliter Sales Department Male Employee Information
+SELECT Name, Age, Salary, `Joining Date`
+FROM EmployeeData
+WHERE Department = 'Sales' AND Gender = 'Male';
+
+
+#Identify High-Performing Employees with Above-Average Productivity
+SELECT Name, Productivity
+FROM EmployeeData
+WHERE Productivity > (SELECT AVG(Productivity) FROM EmployeeData);
+
+
+#Group Employees into Age Ranges and Count the Number of Employees in Each Range
+SELECT 
+  CASE
+    WHEN Age BETWEEN 20 AND 30 THEN '20-30'
+    WHEN Age BETWEEN 31 AND 40 THEN '31-40'
+    ELSE '41+'
+  END AS AgeRange,
+  COUNT(*) AS EmployeeCount
+FROM EmployeeData
+GROUP BY AgeRange;
+
+
+#Top 3 High-Performing Employees with the Most Completed Projects
+SELECT * FROM EmployeeData
+ORDER BY `Projects Completed` DESC
+LIMIT 3;
+
+
+#Top 3 Highest-Paid Employees by Department
+WITH RankedEmployees AS (
+  SELECT Name, Salary, Department,
+         RANK() OVER (PARTITION BY Department ORDER BY Salary DESC) AS SalaryRank
+  FROM EmployeeData
+)
+
+SELECT Name, Salary, Department
+FROM RankedEmployees
+WHERE SalaryRank <= 3;
+
+
+#Calculate the Percentage of Female Employees in Each Department
+SELECT Department, 
+       SUM(CASE WHEN Gender = 'Female' THEN 1 ELSE 0 END) / COUNT(*) * 100 AS FemalePercentage
+FROM EmployeeData
+GROUP BY Department;
+
+
+#Group Employees into Salary Ranges and Calculate the Count of Employees in Each Range
+SELECT 
+  CASE
+    WHEN Salary < 60000 THEN 'Low'
+    WHEN Salary BETWEEN 60000 AND 100000 THEN 'Medium'
+    ELSE 'High'
+  END AS SalaryRange,
+  COUNT(*) AS EmployeeCount
+FROM EmployeeData
+GROUP BY SalaryRange;
+
+
+#Calculate the Cumulative Sum of Salaries Within Each Department
+SELECT Department, Salary,
+       SUM(Salary) OVER (PARTITION BY Department ORDER BY Salary ASC) AS CumulativeSalary
+FROM EmployeeData;
+
+
+#Retrieve Employees with Satisfaction Rates below 30%
+SELECT Name, Department, Position, `Satisfaction Rate`
+FROM EmployeeData
+WHERE `Satisfaction Rate` < 30;
+
+
